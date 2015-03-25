@@ -1,0 +1,82 @@
+PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]\[\033[01;34m\]:\[\033[00m\]\[\033[01;31m\]\w\[\033[00m\]\n\[\033[01;34m\]\$\[\033[00m\] '
+
+PATH=~/bin:/opt/java/64/jdk1.6.0_33/bin:$PATH
+
+function _lttmm() {
+local cmd=$1
+shift 1
+local largs=$@
+type ${cmd} 1>/dev/null 2>&1 && ${cmd} ${largs} 2>&1 | sed -e "s/.*warning:.*/\x1b[31m&\x1b[m/g" -e "s/.*error:.*/\x1b[35m&\x1b[m/g"
+}
+
+function _build() {
+local cmd
+if [ -f ./build.$1.sh ]; then
+cmd=./build.$1.sh
+shift 1
+elif [ -f ./build.sh ]; then
+cmd=./build.sh
+else
+return
+fi
+local largs=$@
+ls ${cmd} 1>/dev/null 2>&1 && ${cmd} ${largs} 2>&1 | sed -e "s/.*warning:.*/\x1b[31m&\x1b[m/g" -e "s/.*error:.*/\x1b[35m&\x1b[m/g"
+}
+
+function svim() {
+vim --cmd "let loaded_shabit=1" $@
+}
+
+alias wiki="cd ~/workspace/builder/cplus"
+alias grep="grep --color=auto --exclude-dir=svn --exclude-dir=\.git -rns"
+alias workspace="cd ~/workspace/git-src"
+alias BCompare="bcompare 2>/dev/null &"
+alias KCompare="kdiff3 2>/dev/null &"
+alias ..2="cd ../../"
+alias ..3="cd ../../../"
+alias ..4="cd ../../../../"
+alias ..5="cd ../../../../../"
+alias hl_mm="_lttmm $@"
+alias hl_build="_build $@"
+
+if [ -x /usr/bin/dircolors ]; then
+    alias ls='ls --color=auto'
+fi
+
+# enable bash completion in interactive shells
+if [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+fi
+
+alias vimgdb='~/local/vim/bin/vim --cmd "let b:loaded_MiniBufExplorer=1"'
+
+function git_diff() {
+    git diff --no-ext-diff -w "$@" | vim -R -
+}
+
+####################################
+function __W_GEN_TAGS_INTER() {
+    local c IFS=' '$'\t'$'\n'
+    for c in $1; do
+        case "$c" in
+        *=) printf %s$'\n' "$c" ;;
+        *)  printf %s$'\n' "$c " ;;
+        esac
+    done
+}
+
+function __W_GEN_TAGS_IMP() {
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    local IFS=$'\n'
+    COMPREPLY=($(compgen -W "$(__W_GEN_TAGS_INTER "${1}")" -- "$cur"))
+}
+
+function __W_GEN_TAGS_COMP() {
+    __W_GEN_TAGS_IMP "clean cpp java temp tname="
+}
+
+complete -o nospace -F __W_GEN_TAGS_COMP gen_tags_cscope_lookup
+complete -o nospace -F __W_GEN_TAGS_COMP gen_tags_global_lookup
+####################################
+
+source /etc/profile.d/rvm.sh
