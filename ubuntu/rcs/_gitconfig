@@ -1,0 +1,15 @@
+[color]
+    ui = auto
+[user]
+	name =
+	email =
+[alias]
+    log-a = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cN - %cr)%Creset' --abbrev-commit --date=relative
+    diff-a = diff --name-status
+    diffall = git_diffall
+    add-a = !"git status -s | grep  \"^ M\" | awk '{print $2}' | xargs -i git add '{}'"
+    add-u = !"git status -s | grep  -v \"^??\" | awk '{print $2}' | xargs -i git add -u '{}'"
+[diff]
+    tool = kdiff3
+[difftool]
+    prompt = false
