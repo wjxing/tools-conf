@@ -1,0 +1,4 @@
+" molokai
+set t_Co=256
+colo molokai
+set cursorline
